@@ -1,72 +1,44 @@
 
-# Mod 4 Project - Starter Notebook
+# Forecasting real estate prices
 
-This notebook has been provided to you so that you can make use of the following starter code to help with the trickier parts of preprocessing the Zillow dataset. 
+The goal is to create a model that best forecasts the changes in real estate prices. Data was sourced from Zillow Research and has monthly information starting from 1996/04/01 and ending in 2018/04/01.
 
-The notebook contains a rough outline the general order you'll likely want to take in this project. You'll notice that most of the areas are left blank. This is so that it's more obvious exactly when you should make use of the starter code provided for preprocessing. 
+Let's focus our forecast on California, New York and Texas states and determine which state(s) have better investment opportunities.
 
-**_NOTE:_** The number of empty cells are not meant to infer how much or how little code should be involved in any given step--we've just provided a few for your convenience. Add, delete, and change things around in this notebook as needed!
+# Methods
 
-# Some Notes Before Starting
+Time series analysis was used to order to predict the real estate prices.
+    1. For California, the best time series model is ARIMA(order=3,1,2)
+    2. For New York, the best time series model is ARIMA(order=0,1,2)
+    3. For Texas, the best time series model is ARIMA(order=1,1,1)
 
-This project will be one of the more challenging projects you complete in this program. This is because working with Time Series data is a bit different than working with regular datasets. In order to make this a bit less frustrating and help you understand what you need to do (and when you need to do it), we'll quickly review the dataset formats that you'll encounter in this project. 
+It is worth noting that during the train-test split analysis CA prediction was underestimated by 28.42%, NY prediction was underestimated by 14.64%, and TX prediction was underestimated by 20.17%.
 
-## Wide Format vs Long Format
+# Results
 
-If you take a look at the format of the data in `zillow_data.csv`, you'll notice that the actual Time Series values are stored as separate columns. Here's a sample: 
+<p align="center">
+   <img src='images/Final Screen Shot.png'
+>
+</p>   
+    
+#### 5-year investment example:
+    1. CA: with initial investment of $746,329, in 5 years it is predicted to grow up to $774,866 resulting in 3.82% return on investment
+    2. NY: with initial investment of $384,161, in 5 years it is predicted to grow up to $443,348 resulting in 15.41% return on investment
+    3. TX: with initial investment of $198,030, in 5 years it is predicted to grow up to $239,229 resulting in 20.8% return on investment
+    
+# Conclusions
+Overall, I recommend investing in NY and TX homes over CA. Those states have lower home prices and higher expected returns. Although, please keep in mind that these predictions are averages for the whole state and are not expected to accurately predict by individual cities. Additionally, during the train-test split analysys, CA prediction was underestimated by 28.42%. Thus, it is possible for CA homes to have higher than predicted returns.
 
-<img src='~/../images/df_head.png'>
+# Next Steps
+- Update the dataset up to the current date
+- Shift focus from states to cities or zip codes
+- Add more models, such as SARIMA and/or SARIMAX
 
-You'll notice that the first seven columns look like any other dataset you're used to working with. However, column 8 refers to the median housing sales values for April 1996, column 9 for May 1996, and so on. This This is called **_Wide Format_**, and it makes the dataframe intuitive and easy to read. However, there are problems with this format when it comes to actually learning from the data, because the data only makes sense if you know the name of the column that the data can be found it. Since column names are metadata, our algorithms will miss out on what dates each value is for. This means that before we pass this data to our ARIMA model, we'll need to reshape our dataset to **_Long Format_**. Reshaped into long format, the dataframe above would now look like:
+# Repository Structure
+- **data** folder contains Zillow Research dataset.
 
-<img src='~/../images/melted1.png'>
+- **images** folder contains images used in README.md and presentation.
 
-There are now many more rows in this dataset--one for each unique time and zipcode combination in the data! Once our dataset is in this format, we'll be able to train an ARIMA model on it. The method used to convert from Wide to Long is `pd.melt()`, and it is common to refer to our dataset as 'melted' after the transition to denote that it is in long format. 
+- **Forecasting_real_estate_prices_presentation.pdf** contains the final presentation.
 
-# Helper Functions Provided
-
-Melting a dataset can be tricky if you've never done it before, so you'll see that we have provided a sample function, `melt_data()`, to help you with this step below. Also provided is:
-
-* `get_datetimes()`, a function to deal with converting the column values for datetimes as a pandas series of datetime objects
-* Some good parameters for matplotlib to help make your visualizations more readable. 
-
-Good luck!
-
-
-# Step 1: Load the Data/Filtering for Chosen Zipcodes
-
-# Step 2: Data Preprocessing
-
-
-```python
-def get_datetimes(df):
-    return pd.to_datetime(df.columns.values[1:], format='%Y-%m')
-```
-
-# Step 3: EDA and Visualization
-
-
-```python
-font = {'family' : 'normal',
-        'weight' : 'bold',
-        'size'   : 22}
-
-matplotlib.rc('font', **font)
-
-# NOTE: if you visualizations are too cluttered to read, try calling 'plt.gcf().autofmt_xdate()'!
-```
-
-# Step 4: Reshape from Wide to Long Format
-
-
-```python
-def melt_data(df):
-    melted = pd.melt(df, id_vars=['RegionName', 'City', 'State', 'Metro', 'CountyName'], var_name='time')
-    melted['time'] = pd.to_datetime(melted['time'], infer_datetime_format=True)
-    melted = melted.dropna(subset=['value'])
-    return melted.groupby('time').aggregate({'value':'mean'})
-```
-
-# Step 5: ARIMA Modeling
-
-# Step 6: Interpreting Results
+- **notebook_Final.ipynb** notebook contains the final modeling process.
